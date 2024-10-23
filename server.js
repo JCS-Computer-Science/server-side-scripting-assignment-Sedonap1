@@ -9,6 +9,7 @@ let activeSessions = {};
 
 //string with path, new endpoint will always start with server.nfksdjbf
 server.get("/newgame", (req, res) => {
+  //generates new ID
   let newID = uuid.v4();
   console.log(newID);
 
@@ -29,13 +30,20 @@ server.get("/newgame", (req, res) => {
 });
 
 server.get("/gamestate", (req, res) => {
-  console.log(req.newGame);
+  console.log(req.query.sessionID);
 
+  //console.log(activeSessions[req.query.sessionID]);
+
+  res.send({ gameState: activeSessions[req.query.sessionID] });
   res.status(200);
-  res.send({ gameState: req.query.newGame });
+
   //res.send({ gameState: req.newGame });
 });
 
+//
+//
+//
+//
 //Do not remove this line. This allows the test suite to start
 //multiple instances of your server on different ports
 module.exports = server;
