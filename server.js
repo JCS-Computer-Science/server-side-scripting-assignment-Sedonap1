@@ -7,14 +7,22 @@ server.use(express.static("public"));
 //All your code goes here
 let activeSessions = {};
 
-//string with path, new endpoint will always start with server.nfksdjbf
+// async function getData() {
+//   let response = await fetch(
+//     "https://api.dictionaryapi.dev/api/v2/entries/en/<word>"
+//   );
+
+//   let data = await response.json();
+//   console.log(data);
+// }
+
 server.get("/newgame", (req, res) => {
   //generates new ID
   let newID = uuid.v4();
   console.log(newID);
 
   let newGame = {
-    wordToGuess: "apple",
+    wordToGuess: "mouse",
     guesses: [],
     wrongLetters: [],
     closeLetters: [],
@@ -32,18 +40,17 @@ server.get("/newgame", (req, res) => {
 server.get("/gamestate", (req, res) => {
   console.log(req.query.sessionID);
 
-  //console.log(activeSessions[req.query.sessionID]);
-
   res.send({ gameState: activeSessions[req.query.sessionID] });
   res.status(200);
-
-  //res.send({ gameState: req.newGame });
 });
 
-//
-//
-//
-//
-//Do not remove this line. This allows the test suite to start
-//multiple instances of your server on different ports
+server.post("/guess", (req, res) => {
+  let guess = req.body.guess;
+  let sessionID = req.body.sessionID;
+
+  res.status(201);
+});
+
+//DO NOT DELETE
+//getData();
 module.exports = server;
