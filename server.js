@@ -30,6 +30,9 @@ server.get("/newgame", (req, res) => {
     gameOver: false,
   };
 
+  let wordToGuess = newGame.wordToGuess;
+  console.log(wordToGuess);
+
   //set word manually
   if (req.query.answer) {
     console.log("manually set answer");
@@ -43,8 +46,6 @@ server.get("/newgame", (req, res) => {
 });
 
 server.get("/gamestate", (req, res) => {
-  //console.log(req.query.sessionID);
-
   res.send({ gameState: activeSessions[req.query.sessionID] });
   res.status(200);
 });
@@ -53,19 +54,24 @@ server.post("/guess", (req, res) => {
   let guess = req.body.guess;
   let sessionID = req.body.sessionID;
 
-  //checks if guess only contains letters
+  //checks if guess only contains letters (comes back true or false)
   let onlyLetters = /^[A-Z]+$/i.test(guess);
 
-  //turns string into array
-  let myArr = guess.split("");
-  console.log(myArr);
-
   if (guess.length == 5 && onlyLetters) {
-    console.log("guess is  5 characters and only letters");
-  }
+    res.status(201);
+    //turns string into array
+    let guessArr = guess.split("");
+    console.log(guessArr);
 
-  res.status(201);
-  res.send();
+    console.log(req.body);
+
+    //let answerArr = ;
+
+    //for (let i = 0; i < array.length; i++) {}
+  } else {
+    res.status(400);
+    res.send({ error: "invalid guess" });
+  }
 });
 
 //DO NOT DELETE
