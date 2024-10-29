@@ -18,6 +18,7 @@ let activeSessions = {};
 
 server.get("/newgame", (req, res) => {
   //generates new ID
+
   let newID = uuid.v4();
 
   let newGame = {
@@ -33,11 +34,18 @@ server.get("/newgame", (req, res) => {
   let wordToGuess = newGame.wordToGuess;
   console.log(wordToGuess);
 
+  let answer;
+
   //set word manually
   if (req.query.answer) {
     console.log("manually set answer");
     newGame.wordToGuess = req.query.answer;
+    answer = req.query.answer;
+  } else {
+    answer = newGame.wordToGuess;
+    res.send({ answer: answer });
   }
+  //console.log(newGame.wordToGuess);
 
   activeSessions[newID] = newGame;
 
@@ -46,28 +54,39 @@ server.get("/newgame", (req, res) => {
 });
 
 server.get("/gamestate", (req, res) => {
-  res.send({ gameState: activeSessions[req.query.sessionID] });
   res.status(200);
+  res.send({ gameState: activeSessions[req.query.sessionID] });
 });
 
 server.post("/guess", (req, res) => {
   let guess = req.body.guess;
   let sessionID = req.body.sessionID;
 
+  if (sessionID == undefined) {
+    //console.log("no session ID");
+    res.status(400);
+    res.send({ error: "no sesion ID provided" });
+  }
+  if (activeSessions[sessionID] == undefined) {
+    res.status(404);
+    res.send({ error: "session ID does not match any active session" });
+  }
+
   //checks if guess only contains letters (comes back true or false)
   let onlyLetters = /^[A-Z]+$/i.test(guess);
 
   if (guess.length == 5 && onlyLetters) {
     res.status(201);
-    //turns string into array
+    //turns guess into array
     let guessArr = guess.split("");
     console.log(guessArr);
 
-    console.log(req.body);
+    //turn answer into array (how do you acsess answer???)
+    console.log(req.body.answer);
 
-    //let answerArr = ;
+    res.send();
 
-    //for (let i = 0; i < array.length; i++) {}
+    for (let i = 0; i < guessArr.length; i++) {}
   } else {
     res.status(400);
     res.send({ error: "invalid guess" });
