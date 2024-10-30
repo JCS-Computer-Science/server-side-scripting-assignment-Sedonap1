@@ -41,10 +41,11 @@ server.get("/newgame", (req, res) => {
     console.log("manually set answer");
     newGame.wordToGuess = req.query.answer;
     answer = req.query.answer;
-  } else {
-    answer = newGame.wordToGuess;
-    res.send({ answer: answer });
   }
+  // else {
+  //   answer = newGame.wordToGuess;
+  //   res.send({ answer: answer });
+  // }
   //console.log(newGame.wordToGuess);
 
   activeSessions[newID] = newGame;
@@ -74,6 +75,7 @@ server.post("/guess", (req, res) => {
 
   //checks if guess only contains letters (comes back true or false)
   let onlyLetters = /^[A-Z]+$/i.test(guess);
+  let gameAns = activeSessions[sessionID].wordToGuess;
 
   if (guess.length == 5 && onlyLetters) {
     res.status(201);
@@ -81,12 +83,19 @@ server.post("/guess", (req, res) => {
     let guessArr = guess.split("");
     console.log(guessArr);
 
-    //turn answer into array (how do you acsess answer???)
-    console.log(req.body.answer);
+    //turn answer into array
+    let answerArr = gameAns.split("");
+    console.log(gameAns);
 
     res.send();
+    let game = [];
 
-    for (let i = 0; i < guessArr.length; i++) {}
+    for (let i = 0; i < guessArr.length; i++) {
+      if (guessArr[i] == answerArr[i]) {
+        game.push({ value: guessArr, result: "RIGHT" });
+        console.log(game);
+      }
+    }
   } else {
     res.status(400);
     res.send({ error: "invalid guess" });
