@@ -92,7 +92,7 @@ server.post("/guess", (req, res) => {
       }
     }
 
-    newGame = {
+    let updatedGame = {
       wordToGuess: gameAns,
       guesses: [],
       wrongLetters: [],
@@ -102,13 +102,13 @@ server.post("/guess", (req, res) => {
       gameOver: false,
     };
 
-    newGame.guesses.push(guesses);
-    console.log(newGame);
+    activeSessions.remainingGuesses = activeSessions.remainingGuesses - 1;
+    //activeSessions.guesses.push(guesses);
+    console.log(activeSessions.guesses);
 
     //console.log(guesses);
     res.status(201);
-    res.send({ gameState: newGame });
-    res.send;
+    res.send({ gameState: updatedGame });
   } else {
     res.status(400);
     res.send({ error: "invalid guess" });
