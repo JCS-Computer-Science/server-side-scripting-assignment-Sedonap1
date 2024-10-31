@@ -32,9 +32,7 @@ server.get("/newgame", (req, res) => {
   };
 
   let wordToGuess = newGame.wordToGuess;
-  console.log(wordToGuess);
-
-  let answer;
+  //console.log(wordToGuess);
 
   //set word manually
   if (req.query.answer) {
@@ -42,11 +40,6 @@ server.get("/newgame", (req, res) => {
     newGame.wordToGuess = req.query.answer;
     answer = req.query.answer;
   }
-  // else {
-  //   answer = newGame.wordToGuess;
-  //   res.send({ answer: answer });
-  // }
-  //console.log(newGame.wordToGuess);
 
   activeSessions[newID] = newGame;
 
@@ -78,24 +71,44 @@ server.post("/guess", (req, res) => {
   let gameAns = activeSessions[sessionID].wordToGuess;
 
   if (guess.length == 5 && onlyLetters) {
-    res.status(201);
-    //turns guess into array
     let guessArr = guess.split("");
-    console.log(guessArr);
-
-    //turn answer into array
     let answerArr = gameAns.split("");
-    console.log(gameAns);
 
-    res.send();
-    let game = [];
+    let guesses = [];
 
     for (let i = 0; i < guessArr.length; i++) {
       if (guessArr[i] == answerArr[i]) {
-        game.push({ value: guessArr, result: "RIGHT" });
-        console.log(game);
+        guesses.push({ value: guessArr[i], result: "RIGHT" });
+      } else if (
+        guessArr[i] == answerArr[0] ||
+        guessArr[i] == answerArr[1] ||
+        guessArr[i] == answerArr[2] ||
+        guessArr[i] == answerArr[3] ||
+        guessArr[i] == answerArr[4]
+      ) {
+        guesses.push({ value: guessArr[i], result: "CLOSE" });
+      } else {
+        guesses.push({ value: guessArr[i], result: "WRONG" });
       }
     }
+
+    newGame = {
+      wordToGuess: gameAns,
+      guesses: [],
+      wrongLetters: [],
+      closeLetters: [],
+      rightLetters: [],
+      remainingGuesses: 6,
+      gameOver: false,
+    };
+
+    newGame.guesses.push(guesses);
+    console.log(newGame);
+
+    //console.log(guesses);
+    res.status(201);
+    res.send({ gameState: newGame });
+    res.send;
   } else {
     res.status(400);
     res.send({ error: "invalid guess" });
