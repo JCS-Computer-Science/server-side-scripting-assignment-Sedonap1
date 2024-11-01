@@ -102,9 +102,9 @@ server.post("/guess", (req, res) => {
       gameOver: false,
     };
 
-    activeSessions.remainingGuesses = activeSessions.remainingGuesses - 1;
-    //activeSessions.guesses.push(guesses);
-    console.log(activeSessions.guesses);
+    updatedGame.remainingGuesses = updatedGame.remainingGuesses - 1;
+    updatedGame.guesses.push(guesses);
+    console.log(updatedGame.guesses);
 
     //console.log(guesses);
     res.status(201);
