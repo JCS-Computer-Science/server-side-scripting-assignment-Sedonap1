@@ -92,16 +92,6 @@ server.post("/guess", (req, res) => {
       }
     }
 
-    let updatedGame = {
-      wordToGuess: gameAns,
-      guesses: [],
-      wrongLetters: [],
-      closeLetters: [],
-      rightLetters: [],
-      remainingGuesses: 6,
-      gameOver: false,
-    };
-
     updatedGame.remainingGuesses = updatedGame.remainingGuesses - 1;
     updatedGame.guesses.push(guesses);
     console.log(updatedGame.guesses);
