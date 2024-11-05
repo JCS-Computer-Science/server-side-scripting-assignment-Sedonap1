@@ -48,6 +48,19 @@ server.get("/newgame", (req, res) => {
 });
 
 server.get("/gamestate", (req, res) => {
+  let sessionID = req.query.sessionID;
+
+  if (sessionID == undefined) {
+    //console.log("no session ID");
+    res.status(400);
+    res.send({ error: "no sesion ID provided" });
+    return;
+  }
+  if (activeSessions[sessionID] == undefined) {
+    res.status(404);
+    res.send({ error: "session ID does not match any active session" });
+    return;
+  }
   res.status(200);
   res.send({ gameState: activeSessions[req.query.sessionID] });
 });
@@ -56,8 +69,9 @@ server.post("/guess", (req, res) => {
   let guess = req.body.guess;
   let sessionID = req.body.sessionID;
 
+  guess = guess.toLowerCase();
+
   if (sessionID == undefined) {
-    //console.log("no session ID");
     res.status(400);
     res.send({ error: "no sesion ID provided" });
   }
@@ -79,6 +93,10 @@ server.post("/guess", (req, res) => {
     for (let i = 0; i < guessArr.length; i++) {
       if (guessArr[i] == answerArr[i]) {
         guesses.push({ value: guessArr[i], result: "RIGHT" });
+        activeSessions[sessionID].rightLetters.push(guessArr[i]);
+        if (activeSessions[sessionID].rightLetters.length == 5) {
+          activeSessions[sessionID].gameOver = true;
+        }
       } else if (
         guessArr[i] == answerArr[0] ||
         guessArr[i] == answerArr[1] ||
@@ -87,22 +105,71 @@ server.post("/guess", (req, res) => {
         guessArr[i] == answerArr[4]
       ) {
         guesses.push({ value: guessArr[i], result: "CLOSE" });
+        activeSessions[sessionID].closeLetters.push(guessArr[i]);
       } else {
         guesses.push({ value: guessArr[i], result: "WRONG" });
+        activeSessions[sessionID].wrongLetters.push(guessArr[i]);
       }
     }
 
-    updatedGame.remainingGuesses = updatedGame.remainingGuesses - 1;
-    updatedGame.guesses.push(guesses);
-    console.log(updatedGame.guesses);
+    //console.log(activeSessions[sessionID]);
+    activeSessions[sessionID].remainingGuesses =
+      activeSessions[sessionID].remainingGuesses - 1;
 
-    //console.log(guesses);
+    activeSessions[sessionID].guesses.push(guesses);
+
     res.status(201);
-    res.send({ gameState: updatedGame });
+    res.send({ gameState: activeSessions[sessionID] });
   } else {
     res.status(400);
     res.send({ error: "invalid guess" });
   }
+});
+
+server.delete("/reset", (req, res) => {
+  let sessionID = req.query.sessionID;
+
+  if (sessionID == undefined) {
+    //console.log("no session ID");
+    res.status(400);
+    res.send({ error: "no sesion ID provided" });
+    return;
+  }
+  if (activeSessions[sessionID] == undefined) {
+    res.status(404);
+    res.send({ error: "session ID does not match any active session" });
+    return;
+  }
+
+  activeSessions[sessionID].wordToGuess = undefined;
+  activeSessions[sessionID].guesses = [];
+  activeSessions[sessionID].remainingGuesses = 6;
+  activeSessions[sessionID].gameOver = false;
+  activeSessions[sessionID].wrongLetters = [];
+  activeSessions[sessionID].closeLetters = [];
+  activeSessions[sessionID].rightLetters = [];
+
+  res.status(200);
+  res.send({ gameState: activeSessions[sessionID] });
+});
+
+server.delete("/delete", (req, res) => {
+  let sessionID = req.query.sessionID;
+  delete activeSessions[sessionID];
+
+  if (sessionID == undefined) {
+    //console.log("no session ID");
+    res.status(400);
+    res.send({ error: "no sesion ID provided" });
+    return;
+  }
+  if (activeSessions[sessionID] == undefined) {
+    res.status(404);
+    res.send({ error: "session ID does not match any active session" });
+    return;
+  }
+  res.status(204);
+  res.send({ gameState: activeSessions });
 });
 
 //DO NOT DELETE
