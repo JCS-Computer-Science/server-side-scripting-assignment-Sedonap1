@@ -100,11 +100,12 @@ server.post("/guess", (req, res) => {
         }
 
         if (activeSessions[sessionID].closeLetters.includes(guessArr[i])) {
+          let x = activeSessions[sessionID].closeLetters.indexOf(guessArr[i]);
           activeSessions[sessionID].closeLetters.splice(x, 1);
           console.log(activeSessions[sessionID].closeLetters);
         }
 
-        if (activeSessions[sessionID].rightLetters.length == 5) {
+        if (activeSessions[sessionID].wordToGuess == req.body.guess) {
           activeSessions[sessionID].gameOver = true;
         }
       } else if (
