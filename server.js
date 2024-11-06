@@ -93,7 +93,17 @@ server.post("/guess", (req, res) => {
     for (let i = 0; i < guessArr.length; i++) {
       if (guessArr[i] == answerArr[i]) {
         guesses.push({ value: guessArr[i], result: "RIGHT" });
-        activeSessions[sessionID].rightLetters.push(guessArr[i]);
+        if (
+          activeSessions[sessionID].rightLetters.includes(guessArr[i]) == false
+        ) {
+          activeSessions[sessionID].rightLetters.push(guessArr[i]);
+        }
+
+        if (activeSessions[sessionID].closeLetters.includes(guessArr[i])) {
+          activeSessions[sessionID].closeLetters.splice(x, 1);
+          console.log(activeSessions[sessionID].closeLetters);
+        }
+
         if (activeSessions[sessionID].rightLetters.length == 5) {
           activeSessions[sessionID].gameOver = true;
         }
@@ -105,7 +115,11 @@ server.post("/guess", (req, res) => {
         guessArr[i] == answerArr[4]
       ) {
         guesses.push({ value: guessArr[i], result: "CLOSE" });
-        activeSessions[sessionID].closeLetters.push(guessArr[i]);
+        if (
+          activeSessions[sessionID].closeLetters.includes(guessArr[i]) == false
+        ) {
+          activeSessions[sessionID].closeLetters.push(guessArr[i]);
+        }
       } else {
         guesses.push({ value: guessArr[i], result: "WRONG" });
         activeSessions[sessionID].wrongLetters.push(guessArr[i]);
@@ -155,7 +169,6 @@ server.delete("/reset", (req, res) => {
 
 server.delete("/delete", (req, res) => {
   let sessionID = req.query.sessionID;
-  delete activeSessions[sessionID];
 
   if (sessionID == undefined) {
     //console.log("no session ID");
@@ -168,6 +181,7 @@ server.delete("/delete", (req, res) => {
     res.send({ error: "session ID does not match any active session" });
     return;
   }
+  delete activeSessions[sessionID];
   res.status(204);
   res.send({ gameState: activeSessions });
 });
