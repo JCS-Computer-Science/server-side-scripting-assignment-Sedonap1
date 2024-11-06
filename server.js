@@ -19,10 +19,22 @@ let activeSessions = {};
 server.get("/newgame", (req, res) => {
   //generates new ID
 
+  let words = [
+    "field",
+    "alarm",
+    "craft",
+    "mouse",
+    "dream",
+    "sight",
+    "learn",
+    "trace",
+  ];
+  let randomNum = Math.floor(Math.random() * [words.length]);
+
   let newID = uuid.v4();
 
   let newGame = {
-    wordToGuess: "mouse",
+    wordToGuess: words[randomNum],
     guesses: [],
     wrongLetters: [],
     closeLetters: [],
@@ -61,8 +73,14 @@ server.get("/gamestate", (req, res) => {
     res.send({ error: "session ID does not match any active session" });
     return;
   }
+
+  let gameCopy = JSON.stringify(activeSessions[req.query.sessionID]);
+  gameCopy = JSON.parse(gameCopy);
+  gameCopy.wordToGuess = [];
+
   res.status(200);
-  res.send({ gameState: activeSessions[req.query.sessionID] });
+  //res.send({ gameState: activeSessions[req.query.sessionID] });
+  res.send({ gameState: gameCopy });
 });
 
 server.post("/guess", (req, res) => {
@@ -133,8 +151,12 @@ server.post("/guess", (req, res) => {
 
     activeSessions[sessionID].guesses.push(guesses);
 
+    let gameCopy = JSON.stringify(activeSessions[req.body.sessionID]);
+    gameCopy = JSON.parse(gameCopy);
+    gameCopy.wordToGuess = [];
+
     res.status(201);
-    res.send({ gameState: activeSessions[sessionID] });
+    res.send({ gameState: gameCopy });
   } else {
     res.status(400);
     res.send({ error: "invalid guess" });
